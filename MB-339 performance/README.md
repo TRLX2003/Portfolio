@@ -12,18 +12,8 @@ MATLAB analysis of the performance of the **Aermacchi MB-339** jet trainer: drag
 
 ## Requirements
 
-- MATLAB **R2021a or later** (`LineWidth=2` name-value syntax)
 - **Aerospace Toolbox** (`atmosisa`, ISA standard atmosphere)
 - **Mapping Toolbox** (`unitsratio`, ft → m conversion)
-
-## Usage
-
-1. Clone the repository and open the folder in MATLAB (the `.mat` files must be in the same folder as the script).
-2. Run `Lab01.m` (whole file or section by section).
-
-```matlab
-Lab01
-```
 
 ## Input data
 
