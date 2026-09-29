@@ -55,7 +55,3 @@ MATLAB analysis of the performance of the **Aermacchi MB-339** jet trainer: drag
 - Constant weight (no fuel burn).
 - ISA standard atmosphere.
 - Symmetric, quasi-steady flight with small climb angles (`sin γ ≈ γ`).
-
-## Author
-
-[Alex Triolo] — [Airplane Performance and Dynamics / Politecnico di Milano, 2026]
