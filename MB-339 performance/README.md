@@ -51,12 +51,10 @@ MATLAB analysis of the performance of the **Aermacchi MB-339** jet trainer: drag
 
 ## Assumptions and limitations
 
-- Parabolic polar `CD = CD0 + k·CL²` (linear term of the fit neglected).
 - Thrust independent of speed, proportional to `(ρ/ρ0)^0.75`.
 - Constant weight (no fuel burn).
 - ISA standard atmosphere.
 - Symmetric, quasi-steady flight with small climb angles (`sin γ ≈ γ`).
-- Near the ceiling the root-finding (`fzero`) may fail to converge: invalid cases are handled with fallback values.
 
 ## Author
 
