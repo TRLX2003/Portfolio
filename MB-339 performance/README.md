@@ -1,87 +1,72 @@
-# MB-339 Aircraft Performance Analysis
+# Lab 1 – Elements of Airplane Performance (I)
 
-MATLAB Live Script implementing a classical fixed-wing performance analysis of the
-Aermacchi **MB-339** jet trainer, from experimental aerodynamic and propulsion data
-to the flight envelope and time-to-climb.
-
-Built as a lab assignment for a Flight Mechanics / Airplane Performance course.
-
-## What it does
-
-Starting from experimental polar and thrust data, the script builds up a full
-point-performance analysis:
-
-1. **Drag polar fitting** — linear interpolation, cubic spline, and quadratic
-   least-squares fit of `C_D(C_L)`, compared against each other.
-2. **Thrust modeling** — quadratic fit of experimental thrust vs. airspeed at
-   several altitudes, plus an analytical model
-   `T(ρ) = T₀ · (ρ/ρ₀)^A` (A = 0.75) assumed independent of speed.
-3. **Penaud (thrust-required) diagrams** — drag vs. airspeed at sea level using
-   all three polar fits, then generalized to altitude with the analytical polar.
-4. **SET & SEP** — Specific Excess Thrust (≈ climb angle, small-angle
-   approximation) and Specific Excess Power across the flyable speed range, at
-   each altitude.
-5. **Flight envelope** — minimum and maximum true airspeed vs. altitude,
-   obtained as the roots of `Thrust available = Drag required`, bounded by
-   stall speed.
-6. **Time to climb** — cumulative climb time along the best-rate-of-climb
-   speed schedule, computed two ways:
-   - **Quasi-steady**: `dt/dh = 1 / SEP_max`
-   - **Unsteady (energy-height) method**: `dt/dh = (1 + (V/g)·dV/dh) / SEP_max`,
-     accounting for the energy spent accelerating along the climb schedule.
-
-   The quasi-steady curve asymptotically flattens as altitude approaches the
-   **absolute ceiling**, where `SEP_max → 0` — this is the expected physical
-   behavior, not a numerical artifact.
+MATLAB analysis of the performance of the **Aermacchi MB-339** jet trainer: drag polar, thrust, Penaud diagrams, SET/SEP, flight envelope, time to climb and coordinated turn.
 
 ## Repository contents
 
-```
-Lab01.mlx           MATLAB Live Script — full analysis, in order
-MB339_polar.mat      Experimental C_L / C_D polar data
-MB339_thrust.mat     Experimental thrust data: T(altitude, airspeed)
-```
+| File | Description |
+|---|---|
+| `Lab01.m` | Main script, runnable section by section (`%%`) |
+| `MB339_polar.mat` | Experimental polar data (`CL`, `CD`) |
+| `MB339_thrust.mat` | Experimental thrust data (`h`, `V`, `T`) |
 
 ## Requirements
 
-- MATLAB R2020b or newer (Live Script `.mlx` format, `compose` function)
-- Aerospace Toolbox (`atmosisa` — International Standard Atmosphere)
+- MATLAB **R2021a or later** (`LineWidth=2` name-value syntax)
+- **Aerospace Toolbox** (`atmosisa`, ISA standard atmosphere)
+- **Mapping Toolbox** (`unitsratio`, ft → m conversion)
 
-`fzero`, `optimset`, `polyfit`, `interp1`, and `spline` are all base MATLAB and
-need no additional toolbox.
+## Usage
 
-## Running it
+1. Clone the repository and open the folder in MATLAB (the `.mat` files must be in the same folder as the script).
+2. Run `Lab01.m` (whole file or section by section).
 
-1. Keep `Lab01.mlx`, `MB339_polar.mat`, and `MB339_thrust.mat` in the same
-   folder.
-2. Open `Lab01.mlx` in MATLAB and run all sections top to bottom — later
-   sections depend on variables defined earlier (polar coefficients, thrust
-   model, flight envelope, etc.).
+```matlab
+Lab01
+```
 
-## Modeling assumptions
+## Input data
 
-These are deliberate simplifications typical of a first-pass performance
-estimate, not limitations of the code:
+- `MB339_polar.mat`: vectors `CL` and `CD` (experimental polar points, with `CL` increasing up to `CL_max`).
+- `MB339_thrust.mat`: vector `h` (altitudes [ft], column), vector `V` (speeds [m/s]) and matrix `T` [N] of size `length(h) × length(V)`. The first row corresponds to the lowest altitude (sea level).
 
-- Drag polar assumed parabolic, `C_D = k·C_L² + C_D₀` (the linear `C_L` term
-  from the quadratic fit is neglected).
-- Available thrust assumed independent of airspeed at a given altitude,
-  scaling only with the density ratio to the power `A = 0.75`.
-- Climb angle approximated as `γ ≈ (T − D) / W` (valid for small angles,
-  standard in this type of point-performance analysis).
-- At each altitude, the best rate-of-climb speed is taken as the speed that
-  maximizes SEP over the achievable speed range between stall and the
-  thrust-limited maximum speed.
+## Aircraft parameters
 
-## Sample outputs
+| Symbol | Value | Description |
+|---|---|---|
+| `W` | 61000 N | Weight |
+| `S` | 19.3 m² | Wing area |
+| `A` | 0.75 | Exponent of the thrust model `T = T0 (ρ/ρ0)^A` |
+| `n_max` | 2.5 | Maximum load factor in turn |
 
-The script generates, among others:
-- Polar comparison (linear / spline / quadratic)
-- Thrust vs. airspeed at multiple altitudes (experimental + analytical)
-- Penaud diagrams at sea level and across altitude
-- SET and SEP carpet plots vs. airspeed and altitude
-- Flight envelope (`v_min`, `v_max` vs. altitude)
-- Time-to-climb curves (quasi-steady vs. unsteady)
+## Script structure
+
+1. **Polar** – Interpolation of the experimental data (linear, spline, quadratic) and comparison. `CD0` and `k` are obtained from the quadratic fit.
+2. **Thrust** – Quadratic fit of the experimental data versus `V` for each altitude, and analytical model (thrust constant with speed, scaled with density).
+3. **Penaud diagrams** – Drag versus speed at `h = 0 ft` with the four polar models; the analytical polar is then used for the altitude effect.
+4. **SET and SEP** – Specific Excess Thrust (climb angle γ) and Specific Excess Power (rate of climb) at each altitude.
+5. **Flight envelope** – `v_min` (stall or T = D intersection) and `v_max` (T = D) as a function of altitude up to 15000 m.
+6. **Time to climb** – Quasi-steady approach `τ = ∫ dh / SEP_max` and unsteady approach (acceleration factor `1 + (v/g)·dv/dh`).
+7. **Turn performance** – Coordinated turn at `h = 0 ft`: maximum bank angle, minimum radius and minimum time for a 180° turn.
+
+## Output plots
+
+- Polar (linear, spline, quadratic, comparison)
+- Experimental and analytical thrust
+- Penaud diagrams (per model and per altitude)
+- SET and SEP
+- Flight envelope
+- Time to climb (quasi-steady and unsteady)
+- T/D diagram for different `n`, bank angle, turn radius and turn time
+
+## Assumptions and limitations
+
+- Parabolic polar `CD = CD0 + k·CL²` (linear term of the fit neglected).
+- Thrust independent of speed, proportional to `(ρ/ρ0)^0.75`.
+- Constant weight (no fuel burn).
+- ISA standard atmosphere.
+- Symmetric, quasi-steady flight with small climb angles (`sin γ ≈ γ`).
+- Near the ceiling the root-finding (`fzero`) may fail to converge: invalid cases are handled with fallback values.
 
 ## Author
 
